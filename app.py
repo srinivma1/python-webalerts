@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 
 
-@app.route('/', methods=['POST'])
+@app.route('/webalerts', methods=['POST'])
 def handle_alert():
     data = json.loads(request.data)
     alertname = data['groupLabels']['alertname']
@@ -23,4 +23,4 @@ def handle_alert():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=80)
