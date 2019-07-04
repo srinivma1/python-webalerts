@@ -9,7 +9,6 @@ app = Flask(__name__)
 @app.route('/webalerts', methods=['POST'])
 def handle_alert():
     data = json.loads(request.data)
-    print(data)
     alerts = data['alerts']
     print(alerts)
     alertname = alerts['alertname']
