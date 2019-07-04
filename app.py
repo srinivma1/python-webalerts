@@ -10,7 +10,8 @@ app = Flask(__name__)
 def handle_alert():
     data = json.loads(request.data)
     print(data)
-    alerts = data['alerts']['labels']
+    alerts = data['alerts']
+    print(alerts)
     alertname = alerts['alertname']
     print(alertname)
     description = data['commonAnnotations']['description']
