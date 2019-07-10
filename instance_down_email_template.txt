@@ -1,0 +1,5 @@
+Dear Admin,
+
+Instance {instance_name} in namespace {namespace}  has been down for more than 5 minutes. Please login to the cluster console  https://{cluster_name}/console, review logs and take appropriate action.
+
+Thanks.
