@@ -1,5 +1,5 @@
 from flask import Flask, request
-
+from kafka import KafkaProducer
 import json, os
 
 app = Flask(__name__)
