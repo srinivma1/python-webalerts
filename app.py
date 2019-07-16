@@ -10,30 +10,37 @@ app = Flask(__name__)
 def handle_alert():
     data = json.loads(request.data)
     alertname = data['commonLabels']['alertname']
+    print(alertname)
     severity = data['commonLabels']['severity']
+    instanceDown = os.environ["INSTANCE_DOWN"]
+    instanceDownArr = instanceDown.split(',')
+    print(severity)
     alerts = data['alerts']
-    labels = alerts[0]["labels"]
-    instanceName = labels["app"]
-    annotations = alerts[0]["annotations"]
-    namespace = labels["kubernetes_namespace"]
-    if alertname == 'InstanceDown' and instanceName == 'infytraveltwo':
+    for i in alerts:
+        labels = i["labels"]
+        if "app" in labels:
+            instanceName = labels["app"]
+            print(instanceName)
+            if alertname == 'InstanceDown' and instanceName in instanceDownArr:
+                namespace = labels["kubernetes_namespace"]
+                print(namespace)
+                sendToKafkaTopic(alertname, instanceName, namespace, severity)
 
-        sendToKafkaTopic(alertname,instanceName,namespace,severity)
     return "OK"
 
 def sendToKafkaTopic(alertname,instanceName,namespace,severity):
     kafka_host = os.environ["KAFKA_HOST"]
     producer = KafkaProducer(value_serializer=lambda v:json.dumps(v).encode('utf-8'),bootstrap_servers=kafka_host)
-    gmail_user = os.environ["GMAIL_USERNAME"]
-    gmail_password = os.environ["GMAIL_PASSWORD"]
+    gmail_user = os.environ["EMAIL_USERNAME"]
+    gmail_password = os.environ["EMAIL_PASSWORD"]
     sent_from = gmail_user
-    to = os.environ["TO_GMAIL"]
+    to = os.environ["EMAIL_RECIPIENT"]
     clusterName = os.environ["CLUSTER_NAME"]
     kafka_topic = os.environ["KAFKA_TOPIC"]
     data = {}
-    data['gmailUserName'] = gmail_user
-    data['gmailPassword'] = gmail_password
-    data['gmailRecipient'] = to
+    data['emailUserName'] = gmail_user
+    data['emailPassword'] = gmail_password
+    data['emailRecipient'] = to
     data['clusterName'] = clusterName
     data['alertName'] = alertname
     data['instanceName'] = instanceName

@@ -17,11 +17,11 @@ def sendGmail():
         for message in consumer:
             data = json.loads(message.value)
             print(data)
-            gmail_user = data['gmailUserName']
+            gmail_user = data['emailUserName']
             print(gmail_user)
-            gmail_password = data['gmailPassword']
+            gmail_password = data['emailPassword']
             sent_from = gmail_user
-            to = data['gmailRecipient']
+            to = data['emailRecipient']
             clusterName = data['clusterName']
             alertname = data['alertName']
             severity = data['severity']
@@ -30,7 +30,9 @@ def sendGmail():
             subject = 'Alert : {} Severity : {}'.format(alertname, severity)
             body = email_template.format(instance_name=instanceName, namespace=namespace, cluster_name=clusterName)
             message = 'Subject: {}\n\n{}'.format(subject, body)
-            server = smtplib.SMTP('smtp.gmail.com', 587)
+            emailHostName = os.environ["EMAIL_HOST_NAME"]
+            emailHostPort = os.environ["EMAIL_HOST_PORT"]
+            server = smtplib.SMTP(emailHostName, emailHostPort)
             server.ehlo()
             server.starttls()
             server.login(gmail_user, gmail_password)
