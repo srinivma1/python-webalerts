@@ -1,0 +1,1 @@
+{"emailUserName": "maheshsbrmnn@gmail.com", "emailPassword": "xxxxx", "emailRecipient": "maheshsbrmnn@gmail.com", "clusterName": "masterdnsj2p5wq2nzrzvo.southindia.cloudapp.azure.com", "alertName": "InstanceDown", "alertDescription":"Pod Instance check has been down for more than 5 minutes","instanceName": "check", "namespace": "multicluster-test-apps", "severity": "page"}

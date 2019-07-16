@@ -12,7 +12,7 @@ def handle_alert():
     alertname = data['commonLabels']['alertname']
     print(alertname)
     severity = data['commonLabels']['severity']
-    instanceDown = os.environ["INSTANCE_DOWN"]
+    instanceDown = os.environ[alertname.upper()]
     instanceDownArr = instanceDown.split(',')
     print(severity)
     alerts = data['alerts']
@@ -21,7 +21,7 @@ def handle_alert():
         if "app" in labels:
             instanceName = labels["app"]
             print(instanceName)
-            if alertname == 'InstanceDown' and instanceName in instanceDownArr:
+            if alertname == labels["alertname"] and instanceName in instanceDownArr:
                 namespace = labels["kubernetes_namespace"]
                 print(namespace)
                 sendToKafkaTopic(alertname, instanceName, namespace, severity)
@@ -30,24 +30,17 @@ def handle_alert():
 
 def sendToKafkaTopic(alertname,instanceName,namespace,severity):
     kafka_host = os.environ["KAFKA_HOST"]
-    producer = KafkaProducer(value_serializer=lambda v:json.dumps(v).encode('utf-8'),bootstrap_servers=kafka_host)
-    gmail_user = os.environ["EMAIL_USERNAME"]
-    gmail_password = os.environ["EMAIL_PASSWORD"]
-    sent_from = gmail_user
-    to = os.environ["EMAIL_RECIPIENT"]
-    clusterName = os.environ["CLUSTER_NAME"]
     kafka_topic = os.environ["KAFKA_TOPIC"]
+    clusterName = os.environ["CLUSTER_NAME"]
     data = {}
-    data['emailUserName'] = gmail_user
-    data['emailPassword'] = gmail_password
-    data['emailRecipient'] = to
-    data['clusterName'] = clusterName
     data['alertName'] = alertname
     data['instanceName'] = instanceName
     data['namespace'] = namespace
     data['severity'] = severity
+    data['clusterName'] = clusterName
     json_data = json.dumps(data)
     print(json_data)
+    producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'), bootstrap_servers=kafka_host)
     ack = producer.send(kafka_topic, json_data)
     metadata = ack.get()
     print(metadata.topic)
